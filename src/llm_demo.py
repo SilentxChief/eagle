@@ -59,7 +59,7 @@ def run():
     print(prompt)
 
     # # Call the LLM to generate a comment suggestion
-    # client = openai.OpenAI(api_key="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")  # Ensure you have the latest OpenAI library
+    # client = openai.OpenAI(api_key="sk")  # Ensure you have the latest OpenAI library
 
     # response = client.chat.completions.create(
     #     model="gpt-4o",  # Use "gpt-4" if needed
