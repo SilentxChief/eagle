@@ -47,16 +47,16 @@ def run():
 
     print (context)
 
-    # # Construct the prompt for the LLM
-    # prompt = f"""
-    # Given the following historical trade alerts and their supervisor comments:
-    # {context}
-    # For a new alert with these details:
-    # Trade details: {new_alert['trade_details']}
-    # Risk profile: {new_alert['risk']}
-    # PnL impact: {new_alert['pnl']}
-    # Generate a concise supervisor comment for this alert.
-    # """
+    # Construct the prompt for the LLM
+    prompt = f"""
+    Given the following historical trade alerts and their supervisor comments:
+    {context}
+    For a new alert with these details:
+    Trade details: {new_alert['trade_details']}
+    Generate a concise supervisor comment for this alert.
+    """
+
+    print(prompt)
 
     # # Call the LLM to generate a comment suggestion
     # client = openai.OpenAI(api_key="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")  # Ensure you have the latest OpenAI library
