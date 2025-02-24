@@ -47,5 +47,44 @@ additional_alerts = [
   for i in range(6, 2001)
 ]
 
+
+TEST_ALERTS = [
+  {
+    "alert_id": "1",
+    "instrument": "vanilla IR swaps",
+    "alert_type": "Wash",
+    "trade_details": "Related orders: [Order ID: D400, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low], [Order ID: D401, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low]",
+    "comment": "Review rate risk and counterparty."
+  },
+  {
+    "alert_id": "2",
+    "instrument": "equity options",
+    "alert_type": "Spoofing",
+    "trade_details": "Related orders: [Order ID: E500, Size: 10K, Price: $50.00, Order Type: Limit, Status: Canceled, PnL: 0, Volatility: High], [Order ID: E501, Size: 10K, Price: $50.05, Order Type: Market, Status: Executed, PnL: 50K, Volatility: High]",
+    "comment": "Investigate potential spoofing activity."
+  },
+  {
+    "alert_id": "3",
+    "instrument": "FX forwards",
+    "alert_type": "Front Running",
+    "trade_details": "Related orders: [Order ID: F600, Size: 5M, Price: 1.2000 EUR/USD, Order Type: Market, Status: Executed, PnL: 20K, Volatility: Medium], [Order ID: F601, Size: 5M, Price: 1.1995 EUR/USD, Order Type: Market, Status: Executed, PnL: 25K, Volatility: Medium]",
+    "comment": "Check for front running indicators."
+  },
+  {
+    "alert_id": "4",
+    "instrument": "commodity futures",
+    "alert_type": "Insider Trading",
+    "trade_details": "Related orders: [Order ID: C700, Size: 100 contracts, Price: $70.00, Order Type: Market, Status: Executed, PnL: 150K, Volatility: High], [Order ID: C701, Size: 100 contracts, Price: $71.00, Order Type: Market, Status: Executed, PnL: 140K, Volatility: High]",
+    "comment": "Analyze for insider trading signals."
+  },
+  {
+    "alert_id": "5",
+    "instrument": "corporate bonds",
+    "alert_type": "Marking the Close",
+    "trade_details": "Related orders: [Order ID: B800, Size: 2M, Price: 99.50, Order Type: Market, Status: Executed, PnL: 10K, Volatility: Low], [Order ID: B801, Size: 2M, Price: 99.75, Order Type: Market, Status: Executed, PnL: 15K, Volatility: Low]",
+    "comment": "Evaluate end-of-day trading patterns."
+  }
+]
+
 # Combine base alerts with additional alerts
 ALL_ALERTS = base_alerts + additional_alerts

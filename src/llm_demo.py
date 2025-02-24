@@ -2,7 +2,7 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import openai
-from src.sample_data import ALL_ALERTS
+from src.sample_data import ALL_ALERTS, TEST_ALERTS
 import os
 
 def run():
@@ -34,45 +34,46 @@ def run():
         "alert_type": "Wash",
         "trade_details": "Related orders: [Order ID: D400, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low], [Order ID: D401, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low]",
     }
-    new_embedding = model.encode([new_alert["trade_details"]])
+    for alert in TEST_ALERTS:
+        new_embedding = model.encode([alert["trade_details"]])
 
-    # Retrieve the top 3 similar historical alerts
-    k = 3
-    distances, indices = index.search(np.array(new_embedding), k)
-    retrieved_alerts = [historical_alerts[i] for i in indices[0]]
+        # Retrieve the top 3 similar historical alerts
+        k = 2
+        distances, indices = index.search(np.array(new_embedding), k)
+        retrieved_alerts = [historical_alerts[i] for i in indices[0]]
 
-    # Build the context from similar alerts
-    context = ""
-    for alert in retrieved_alerts:
-        context += f"Trade details: {alert['trade_details']}\nComment: {alert['comment']}\n---\n"
+        # Build the context from similar alerts
+        context = ""
+        for alert in retrieved_alerts:
+            context += f"Trade details: {alert['trade_details']}\nComment: {alert['comment']}\n---\n"
 
-    # Construct the prompt for the LLM
-    prompt = f"""
-    Given the following historical trade alerts and their supervisor comments:
-    {context}
-    For a new alert with these details:
-    Trade details: {new_alert['trade_details']}
-    Generate a concise supervisor comment for this alert.
-    """
+        # Construct the prompt for the LLM
+        prompt = f"""
+        Given the following historical trade alerts and their supervisor comments:
+        {context}
+        For a new alert with these details:
+        Trade details: {new_alert['trade_details']}
+        Generate a concise supervisor comment for this alert.
+        """
 
-    print(prompt)
+        print(prompt)
 
-    # # Call the LLM to generate a comment suggestion
+        # # Call the LLM to generate a comment suggestion
 
-    # Load the OpenAI API key from the environment variable
-    # openai_api_key = os.getenv("OPENAI_API_KEY")
-    # if not openai_api_key:
-    #     raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
+        # Load the OpenAI API key from the environment variable
+        # openai_api_key = os.getenv("OPENAI_API_KEY")
+        # if not openai_api_key:
+        #     raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
 
-    # client = openai.OpenAI(api_key=openai_api_key)  # Ensure you have the latest OpenAI library
+        # client = openai.OpenAI(api_key=openai_api_key)  # Ensure you have the latest OpenAI library
 
-    # response = client.chat.completions.create(
-    #     model="gpt-4o",  # Use "gpt-4" if needed
-    #     messages=[{"role": "system", "content": "You are a financial supervisor."},
-    #               {"role": "user", "content": prompt}],
-    #     max_tokens=100
-    # )
+        # response = client.chat.completions.create(
+        #     model="gpt-4o",  # Use "gpt-4" if needed
+        #     messages=[{"role": "system", "content": "You are a financial supervisor."},
+        #               {"role": "user", "content": prompt}],
+        #     max_tokens=100
+        # )
 
-    # suggested_comment = response.choices[0].message.content
+        # suggested_comment = response.choices[0].message.content
 
-    # print("Suggested comment:", suggested_comment)
+        # print("Suggested comment:", suggested_comment)
