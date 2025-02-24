@@ -3,6 +3,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 import openai
 from src.sample_data import ALL_ALERTS
+import os
 
 def run():
     # Initialize the embedding model (adjust model name as needed)
@@ -45,8 +46,6 @@ def run():
     for alert in retrieved_alerts:
         context += f"Trade details: {alert['trade_details']}\nComment: {alert['comment']}\n---\n"
 
-    print (context)
-
     # Construct the prompt for the LLM
     prompt = f"""
     Given the following historical trade alerts and their supervisor comments:
@@ -59,7 +58,13 @@ def run():
     print(prompt)
 
     # # Call the LLM to generate a comment suggestion
-    # client = openai.OpenAI(api_key="sk")  # Ensure you have the latest OpenAI library
+
+    # Load the OpenAI API key from the environment variable
+    # openai_api_key = os.getenv("OPENAI_API_KEY")
+    # if not openai_api_key:
+    #     raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
+
+    # client = openai.OpenAI(api_key=openai_api_key)  # Ensure you have the latest OpenAI library
 
     # response = client.chat.completions.create(
     #     model="gpt-4o",  # Use "gpt-4" if needed
