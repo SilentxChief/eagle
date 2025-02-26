@@ -4,6 +4,9 @@ from sentence_transformers import SentenceTransformer
 import openai
 from src.sample_data import ALL_ALERTS, TEST_ALERTS
 import os
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+load_dotenv()
 
 def run():
     # Initialize the embedding model (adjust model name as needed)
@@ -22,20 +25,14 @@ def run():
     trade_texts = [alert["trade_details"] for alert in historical_alerts]
     embeddings = model.encode(trade_texts)
 
-    # Create a FAISS index using L2 (Euclidean) distance
+    # Create a FAISS index using L2 (Euclidean) distancerun
     d = embeddings.shape[1]  # Dimension of the embeddings
     index = faiss.IndexFlatL2(d)
     index.add(np.array(embeddings))
 
-    # New alert that triggers comment suggestion
-    new_alert = {
-        "alert_id": "6",
-        "instrument": "vanilla IR swaps",
-        "alert_type": "Wash",
-        "trade_details": "Related orders: [Order ID: D400, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low], [Order ID: D401, Size: 50M, Price: Swap rate 2.1%, Order Type: Market, Status: Executed, PnL: 100K, Volatility: Low]",
-    }
-    for alert in TEST_ALERTS:
-        new_embedding = model.encode([alert["trade_details"]])
+    # Test New alert that triggers comment suggestion
+    for new_alert in TEST_ALERTS:
+        new_embedding = model.encode([new_alert["trade_details"]])
 
         # Retrieve the top 3 similar historical alerts
         k = 2
@@ -53,12 +50,27 @@ def run():
         {context}
         For a new alert with these details:
         Trade details: {new_alert['trade_details']}
-        Generate a concise supervisor comment for this alert.
+        Instrument: {new_alert['instrument']}
+        Generate a brief comment on behalf of Trading Supervisor with reference trade details in alert for this alert without providing references to historical trades or alerts.
+        Per AI Overview: State if it is a legitimate trade or if any action is required as system reported it as {new_alert['alert_type']}.
         """
-
+        print('********************LLM Prompt: Start **************************')
         print(prompt)
+        print('********************LLM Prompt: End ****************************\n')
 
         # # Call the LLM to generate a comment suggestion
+        MODEL = "llama-3.1-8b-instant"
+        llm = ChatGroq(model=MODEL, temperature=0)
+
+        messages = [
+        ("system", "You are a financial supervisor."),
+        ("human", prompt)
+        ]
+
+        res = llm.invoke(messages)
+        print('********************LLM Response: Start ************************\n')
+        print(res.content)
+        print('********************LLM Response: End **************************\n\n')
 
         # Load the OpenAI API key from the environment variable
         # openai_api_key = os.getenv("OPENAI_API_KEY")
