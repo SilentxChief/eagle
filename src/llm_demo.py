@@ -1,11 +1,12 @@
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
-import openai
-from src.sample_data import ALL_ALERTS, TEST_ALERTS
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from src.sample_data import ALL_ALERTS, TEST_ALERTS
+from tabulate import tabulate
+
 load_dotenv()
 
 def format_alert_for_embedding(alert):
@@ -14,8 +15,14 @@ def format_alert_for_embedding(alert):
         ", ".join(f"{k}: {v}" for k, v in order.items()) 
         for order in alert["trade_details"]
     ])
-    # Include alert type, instrument and trade details in structured format
+    # Include alert type, instrument, and trade details in structured format
     return f"Alert Type: {alert['alert_type']}; Instrument: {alert['instrument']}; Trade Details: {details}"
+
+def format_trade_details_for_print(alert):
+    # Format trade_details for readable print in tabular format
+    headers = alert["trade_details"][0].keys()
+    rows = [order.values() for order in alert["trade_details"]]
+    return tabulate(rows, headers, tablefmt="grid")
 
 def run():
     # Initialize the embedding model (adjust model name as needed)
@@ -37,12 +44,14 @@ def run():
 
     # Train the index
     index.train(np.array(embeddings))
+
+    # Add embeddings to the index
     index.add(np.array(embeddings))
 
     # Test new alert that triggers comment suggestion
     for new_alert in TEST_ALERTS:
-        new_embedding = model.encode([new_alert["trade_details"]])
-        new_embedding = new_embedding / np.linalg.norm(new_embedding, axis=1, keepdims=True)
+        new_trade_text = [format_alert_for_embedding(new_alert)]
+        new_embedding = model.encode(new_trade_text)
 
         # Retrieve the top 2 similar historical alerts
         k = 2
@@ -54,7 +63,7 @@ def run():
         for alert in retrieved_alerts:
             context += (
                 "--------------------------------------------------\n"
-                f"Trade details: {alert['trade_details']}\n"
+                f"Trade details:\n{format_trade_details_for_print(alert)}\n"
                 f"Alert Type: {alert['alert_type']}\n"
                 f"Comment: {alert['comment']}\n"
             )
@@ -65,7 +74,7 @@ def run():
             "Given the following historical trade alerts and their supervisor comments:\n"
             f"{context}\n"
             "For a new alert with these details:\n"
-            f"Trade details: {new_alert['trade_details']}\n"
+            f"Trade details:\n{format_trade_details_for_print(new_alert)}\n"
             f"Instrument: {new_alert['instrument']}\n\n"
             "Generate a brief functional comment on behalf of a Trading Supervisor, "
             "with reference to the trade details above, without mentioning historical trades or alerts.\n"
