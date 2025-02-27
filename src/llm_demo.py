@@ -10,13 +10,13 @@ from tabulate import tabulate
 load_dotenv()
 
 def format_alert_for_embedding(alert):
-    # Format trade_details as a structured string
-    details = "; ".join([
-        ", ".join(f"{k}: {v}" for k, v in order.items()) 
+    # Emphasize the alert type by repeating it
+    alert_type_str = f"ALERT TYPE: {alert['alert_type']} " * 3
+    details = "; ".join(
+        ", ".join(f"{k}: {v}" for k, v in order.items())
         for order in alert["trade_details"]
-    ])
-    # Include alert type, instrument, and trade details in structured format
-    return f"Alert Type: {alert['alert_type']}; Instrument: {alert['instrument']}; Trade Details: {details}"
+    )
+    return f"{alert_type_str}; Instrument: {alert['instrument']}; Trade Details: {details}"
 
 def format_trade_details_for_print(alert):
     # Format trade_details for readable print in tabular format
