@@ -9,6 +9,7 @@ from tabulate import tabulate
 
 load_dotenv()
 
+#This is naga's code
 def format_alert_for_embedding(alert):
     # Emphasize the alert type by repeating it
     alert_type_str = f"ALERT TYPE: {alert['alert_type']} " * 3
